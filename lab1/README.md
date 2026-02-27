@@ -2,7 +2,9 @@
 
 Complete Docker-based environment for Lab1 (Batch ETL) and Lab2 (Streaming) labs.
 
-## 📦 Services
+**Check [INSTALL.md](INSTALL.md) for detailed installation instructions.**
+
+## Services
 
 | Service | Port | Description |
 |---------|------|-------------|

@@ -37,8 +37,11 @@ cd sid45-lab/lab1
 ```
 sid45-lab/lab1/
 ├── docker-compose.yml
-├── docker/jupyter/Dockerfile
-├── docker/spark/Dockerfile
+├── docker/
+│   ├── jupyter/
+│   │   └── Dockerfile
+│   └── spark/
+│       └── Dockerfile
 ├── requirements.txt
 ├── .env
 ├── __init__.py
@@ -115,7 +118,7 @@ If automated setup fails, follow these steps:
 cd sid45-lab
 mkdir -p data/lab1/{raw,bronze,silver,gold}
 mkdir -p data/lab2/{raw,checkpoints,output}
-mkdir -p checkpoints notebooks docker/jupyter
+mkdir -p checkpoints notebooks docker/jupyter docker/spark
 ```
 
 ### 2. Build Images
@@ -123,6 +126,10 @@ mkdir -p checkpoints notebooks docker/jupyter
 docker compose build
 # Wait 5-10 minutes for images to build
 ```
+
+The Spark image (master and worker) is built from `docker/spark/Dockerfile` using
+`apache/spark:3.5.0` as the base image. The Jupyter image is built from
+`docker/jupyter/Dockerfile`.
 
 ### 3. Start Services
 ```bash
@@ -144,13 +151,29 @@ All services should show `Up (healthy)`.
 
 **Test Spark:**
 ```bash
-docker exec jupyter python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); print(f'✓ Spark {spark.version} ready'); spark.stop()"
+docker exec jupyter python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); print('Spark ' + spark.version + ' ready'); spark.stop()"
 ```
 
 **Test Kafka:**
 ```bash
-docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092
+# Use the internal hostname kafka:9092 (not localhost:9092)
+docker exec kafka kafka-broker-api-versions --bootstrap-server kafka:9092
 ```
+
+## Network and Port Reference
+
+| Service      | Internal address  | Host address         | Notes                        |
+|--------------|-------------------|----------------------|------------------------------|
+| Kafka broker | kafka:9092        | not exposed          | Used by other containers     |
+| Kafka host   | -                 | localhost:9094       | External access from host    |
+| Kafka UI     | kafka-ui:8080     | localhost:8080       | Web UI                       |
+| Spark Master | spark-master:7077 | localhost:7077       | RPC port                     |
+| Spark Web UI | spark-master:8080 | localhost:8081       | Web UI                       |
+| Spark App UI | -                 | localhost:4040       | Active job UI                |
+| Jupyter      | jupyter:8888      | localhost:8888       | Token: bigdata2026           |
+
+> Note: Kafka's internal listener is bound to the container hostname `kafka`, not
+> `localhost`. Always use `kafka:9092` when connecting from inside the Docker network.
 
 ## Troubleshooting
 
@@ -185,7 +208,7 @@ docker compose up -d
 **Problem**: Not enough RAM allocated to Docker
 
 **Solution**:
-- **Docker Desktop**: Settings → Resources → Memory → Increase to 8GB+
+- **Docker Desktop**: Settings -> Resources -> Memory -> Increase to 8GB+
 - **Linux**: Docker uses all available RAM
 
 Edit `docker-compose.yml` to reduce worker memory:
@@ -204,9 +227,9 @@ spark-worker-1:
 # Retry with verbose logging
 docker compose build --no-cache --progress=plain
 
-# Or pull images manually first
+# Or pull base images manually first
 docker pull confluentinc/cp-kafka:7.5.0
-docker pull bitnami/spark:3.5.0
+docker pull apache/spark:3.5.0
 docker pull jupyter/pyspark-notebook:spark-3.5.0
 ```
 
@@ -229,7 +252,7 @@ docker compose restart jupyter
 
 ### Issue 6: "Kafka connectivity test failed"
 
-**Problem**: Kafka takes longer to start
+**Problem**: Kafka takes longer to start, or the wrong address is used
 
 **Solution**:
 ```bash
@@ -239,8 +262,26 @@ sleep 30
 # Check Kafka logs
 docker compose logs kafka
 
-# Verify Kafka is ready
-docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092
+# Verify Kafka is ready using the correct internal hostname
+docker exec kafka kafka-broker-api-versions --bootstrap-server kafka:9092
+```
+
+> Important: Do not use `localhost:9092` inside the container. The Kafka broker
+> listener is bound to `kafka:9092` (the container hostname). From the host
+> machine, use `localhost:9094`.
+
+### Issue 7: "Permission denied" writing Kafka logs
+
+**Problem**: The Kafka data volume is owned by root but the container runs as `appuser`
+
+**Solution**: This is fixed by using `/var/lib/kafka/data` as the log directory
+(which the image owns). If you upgraded from an older setup that used
+`/tmp/kraft-combined-logs`, remove the old volume and recreate it:
+```bash
+docker compose stop kafka
+docker compose rm -f kafka
+docker volume rm lab1_kafka-data
+docker compose up -d kafka
 ```
 
 ## Post-Installation
@@ -249,7 +290,7 @@ docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092
 
 ```bash
 docker exec -it kafka bash -lc \
-  "kafka-topics --bootstrap-server localhost:9092 --create --topic test-topic --partitions 3 --replication-factor 1"
+  "kafka-topics --bootstrap-server kafka:9092 --create --topic test-topic --partitions 3 --replication-factor 1"
 ```
 
 ### Run Your First Spark Job
@@ -257,7 +298,7 @@ docker exec -it kafka bash -lc \
 ```bash
 docker exec -it jupyter bash
 cd /home/myname/work
-python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); df = spark.range(100); print(f'Count: {df.count()}'); spark.stop()"
+python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); df = spark.range(100); print('Count: ' + str(df.count())); spark.stop()"
 ```
 
 ### Test Jupyter Notebook
@@ -273,7 +314,7 @@ spark = SparkSession.builder \
     .master("spark://spark-master:7077") \
     .getOrCreate()
 
-print(f"Spark version: {spark.version}")
+print("Spark version: " + spark.version)
 spark.range(10).show()
 ```
 
@@ -300,16 +341,14 @@ docker compose up -d --build
 
 If you encounter issues:
 
-1. **Check logs**: `docker compose logs <service-name>`
-2. **Verify status**: `docker compose ps`
-3. **Run validation**: `./validate.sh`
-4. **Check resources**: `docker stats`
+1. Check logs: `docker compose logs <service-name>`
+2. Verify status: `docker compose ps`
+3. Run validation: `./validate.sh`
+4. Check resources: `docker stats`
 
 Common log commands:
 ```bash
-docker compose logs kafka      # Kafka logs
-docker compose logs spark-master  # Spark Master logs
-docker compose logs jupyter    # Jupyter logs
+docker compose logs kafka          # Kafka logs
+docker compose logs spark-master   # Spark Master logs
+docker compose logs jupyter        # Jupyter logs
 ```
-
----
