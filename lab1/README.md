@@ -1,6 +1,6 @@
 # SID45 — Big Data Lab Environment
 
-Complete Docker-based environment for Lab1 (Batch ETL) and Lab2 (Streaming) labs.
+Complete Docker-based environment for Lab1 (Batch ETL).
 
 **Check [INSTALL.md](INSTALL.md) for detailed installation instructions.**
 

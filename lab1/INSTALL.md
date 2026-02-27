@@ -117,7 +117,6 @@ If automated setup fails, follow these steps:
 ```bash
 cd sid45-lab
 mkdir -p data/lab1/{raw,bronze,silver,gold}
-mkdir -p data/lab2/{raw,checkpoints,output}
 mkdir -p checkpoints notebooks docker/jupyter docker/spark
 ```
 

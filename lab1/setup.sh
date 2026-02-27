@@ -44,13 +44,11 @@ echo ""
 # Create directory structure
 echo "Creating directory structure..."
 mkdir -p data/lab1/{raw,bronze,silver,gold}
-mkdir -p data/lab2/{raw,checkpoints,output}
 mkdir -p checkpoints
 mkdir -p notebooks
 
 # Create .gitkeep files
 touch data/lab1/raw/.gitkeep
-touch data/lab2/raw/.gitkeep
 
 echo -e "${GREEN}✓${NC} Directories created"
 echo ""

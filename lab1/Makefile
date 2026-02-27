@@ -26,7 +26,6 @@ help:
 setup:
 	@echo "Creating required directories..."
 	mkdir -p data/lab1/{raw,bronze,silver,gold}
-	mkdir -p data/lab2/{raw,checkpoints,output}
 	mkdir -p checkpoints
 	mkdir -p notebooks
 	mkdir -p docker/jupyter
@@ -111,7 +110,6 @@ clean:
 clean-data:
 	@echo "Removing generated data..."
 	rm -rf data/lab1/{bronze,silver,gold}/*
-	rm -rf data/lab2/{checkpoints,output}/*
 	@echo "Data cleaned"
 
 # Create test topic
