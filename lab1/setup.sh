@@ -57,17 +57,6 @@ touch data/lab2/raw/.gitkeep
 echo -e "${GREEN}✓${NC} Directories created"
 echo ""
 
-# Copy Dockerfile to correct location
-echo "Setting up Docker configuration..."
-if [ -f "Dockerfile_jupyter" ]; then
-    cp Dockerfile_jupyter docker/jupyter/Dockerfile
-    echo -e "${GREEN}✓${NC} Dockerfile copied to docker/jupyter/"
-else
-    echo -e "${YELLOW}⚠${NC} Dockerfile_jupyter not found, skipping..."
-fi
-
-echo ""
-
 # Build images
 echo "Building Docker images..."
 echo "This may take 5-10 minutes on first run..."

@@ -37,7 +37,7 @@ cd sid45-lab/lab1
 ```
 sid45-lab/lab1/
 ├── docker-compose.yml
-├── Dockerfile_jupyter
+├── docker/jupyter/Dockerfile
 ├── requirements.txt
 ├── .env
 ├── __init__.py
@@ -117,23 +117,18 @@ mkdir -p data/lab2/{raw,checkpoints,output}
 mkdir -p checkpoints notebooks docker/jupyter
 ```
 
-### 2. Copy Dockerfile
-```bash
-cp Dockerfile_jupyter docker/jupyter/Dockerfile
-```
-
-### 3. Build Images
+### 2. Build Images
 ```bash
 docker compose build
 # Wait 5-10 minutes for images to build
 ```
 
-### 4. Start Services
+### 3. Start Services
 ```bash
 docker compose up -d
 ```
 
-### 5. Wait for Services
+### 4. Wait for Services
 ```bash
 # Wait 30 seconds for all services to start
 sleep 30
@@ -144,7 +139,7 @@ docker compose ps
 
 All services should show `Up (healthy)`.
 
-### 6. Test Connectivity
+### 5. Test Connectivity
 
 **Test Spark:**
 ```bash

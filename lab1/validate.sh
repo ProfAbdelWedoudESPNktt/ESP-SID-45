@@ -46,7 +46,6 @@ echo "1. Checking configuration files..."
 [ -f "docker-compose.yml" ]; check "docker-compose.yml exists"
 [ -f ".env" ]; check ".env exists"
 [ -f "requirements.txt" ]; check "requirements.txt exists"
-[ -f "Dockerfile_jupyter" ]; check "Dockerfile_jupyter exists"
 echo ""
 
 # 2. Check directories
@@ -65,7 +64,7 @@ echo "2. Checking directory structure..."
 if [ -f "docker/jupyter/Dockerfile" ]; then
     check "docker/jupyter/Dockerfile exists"
 else
-    warn "docker/jupyter/Dockerfile not found (run: cp Dockerfile_jupyter docker/jupyter/Dockerfile)"
+    warn "docker/jupyter/Dockerfile not found"
 fi
 echo ""
 
@@ -200,7 +199,6 @@ else
     echo "Common fixes:"
     echo "  - Run setup: ./setup.sh"
     echo "  - Start services: docker compose up -d"
-    echo "  - Copy Dockerfile: cp Dockerfile_jupyter docker/jupyter/Dockerfile"
     exit 1
 fi
 
