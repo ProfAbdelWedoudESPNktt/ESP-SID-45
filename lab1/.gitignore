@@ -19,8 +19,10 @@ build/
 data/lab1/bronze/
 data/lab1/silver/
 data/lab1/gold/
+data/lab1/raw/
 data/lab2/checkpoints/
 data/lab2/output/
+data/lab2/raw/
 checkpoints/
 
 # Keep raw data structure
