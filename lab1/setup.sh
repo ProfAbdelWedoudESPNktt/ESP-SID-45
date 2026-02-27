@@ -96,21 +96,27 @@ echo ""
 
 # Test Spark connectivity
 echo -n "Testing Spark connectivity... "
-if docker exec jupyter python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); spark.stop()" &> /dev/null; then
+set +e
+docker exec jupyter python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('spark://spark-master:7077').getOrCreate(); spark.stop()" &> /dev/null
+if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${NC}"
 else
     echo -e "${RED}✗${NC}"
     echo "Spark connectivity test failed. Check logs with: docker compose logs spark-master"
 fi
+set -e
 
 # Test Kafka connectivity
 echo -n "Testing Kafka connectivity... "
-if docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092 &> /dev/null; then
+set +e
+docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092 &> /dev/null
+if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${NC}"
 else
     echo -e "${RED}✗${NC}"
     echo "Kafka connectivity test failed. Check logs with: docker compose logs kafka"
 fi
+set -e
 
 echo ""
 echo "=========================================="
