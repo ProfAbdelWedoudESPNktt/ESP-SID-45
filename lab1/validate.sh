@@ -60,11 +60,19 @@ echo "2. Checking directory structure..."
 [ -d "checkpoints" ]; check "checkpoints/ exists"
 [ -d "notebooks" ]; check "notebooks/ exists"
 [ -d "docker/jupyter" ]; check "docker/jupyter/ exists"
+[ -d "docker/spark" ]; check "docker/spark/ exists"
 
 if [ -f "docker/jupyter/Dockerfile" ]; then
     check "docker/jupyter/Dockerfile exists"
 else
     warn "docker/jupyter/Dockerfile not found"
+fi
+echo ""
+
+if [ -f "docker/spark/Dockerfile" ]; then
+    check "docker/spark/Dockerfile exists"
+else
+    warn "docker/spark/Dockerfile not found"
 fi
 echo ""
 

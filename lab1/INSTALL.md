@@ -38,6 +38,7 @@ cd sid45-lab/lab1
 sid45-lab/lab1/
 ├── docker-compose.yml
 ├── docker/jupyter/Dockerfile
+├── docker/spark/Dockerfile
 ├── requirements.txt
 ├── .env
 ├── __init__.py

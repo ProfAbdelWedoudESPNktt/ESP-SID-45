@@ -13,7 +13,6 @@ echo ""
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Check Docker
@@ -48,7 +47,6 @@ mkdir -p data/lab1/{raw,bronze,silver,gold}
 mkdir -p data/lab2/{raw,checkpoints,output}
 mkdir -p checkpoints
 mkdir -p notebooks
-mkdir -p docker/jupyter
 
 # Create .gitkeep files
 touch data/lab1/raw/.gitkeep
