@@ -109,7 +109,7 @@ set -e
 # Test Kafka connectivity
 echo -n "Testing Kafka connectivity... "
 set +e
-docker exec kafka kafka-broker-api-versions --bootstrap-server localhost:9092 &> /dev/null
+docker exec kafka kafka-broker-api-versions --bootstrap-server kafka:9092 &> /dev/null
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${NC}"
 else
